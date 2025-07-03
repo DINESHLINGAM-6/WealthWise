@@ -12,6 +12,46 @@ const router = express.Router();
 
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       required:
+ *         - name
+ *         - email
+ *         - age
+ *         - interests
+ *         - goals
+ *         - skillLevel
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: The auto-generated ID of the user
+ *         name:
+ *           type: string
+ *         email:
+ *           type: string
+ *         age:
+ *           type: number
+ *         interests:
+ *           type: array
+ *           items:
+ *             type: string
+ *         goals:
+ *           type: string
+ *         skillLevel:
+ *           type: string
+ *           enum: [Beginner, Intermediate, Advanced]
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ */
+
+/**
+ * @swagger
  * /api/users/create:
  *   post:
  *     summary: Create a new user
@@ -21,62 +61,23 @@ const router = express.Router();
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - name
- *               - email
- *               - age
- *               - interests
- *               - goals
- *               - skillLevel
- *             properties:
- *               name:
- *                 type: string
- *                 example: Dinesh
- *               email:
- *                 type: string
- *                 example: dinesh@gmail.com
- *               age:
- *                 type: number
- *                 example: 21
- *               interests:
- *                 type: array
- *                 items:
- *                   type: string
- *                 example: ["coding", "investing"]
- *               goals:
- *                 type: string
- *                 example: I want to become financially free by 30
- *               skillLevel:
- *                 type: string
- *                 enum: [Beginner, Intermediate, Advanced]
- *                 example: Intermediate
+ *             $ref: '#/components/schemas/User'
  *     responses:
  *       201:
  *         description: User created successfully
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                 user:
- *                   type: object
+ *               $ref: '#/components/schemas/User'
  *       400:
- *         description: Bad request – error saving user
+ *         description: Error saving user
  */
 router.post('/create', async (req, res) => {
   try {
-    console.log('📥 Incoming user data:', req.body);
     const user = new User(req.body);
     await user.save();
-    res.status(201).json({
-      message: 'User created successfully',
-      user,
-    });
+    res.status(201).json({ message: 'User created successfully', user });
   } catch (error) {
-    console.error('❌ Error saving user:', error.message);
     res.status(400).json({ error: error.message });
   }
 });
@@ -95,38 +96,91 @@ router.post('/create', async (req, res) => {
  *             schema:
  *               type: array
  *               items:
- *                 type: object
- *                 properties:
- *                   _id:
- *                     type: string
- *                   name:
- *                     type: string
- *                   email:
- *                     type: string
- *                   age:
- *                     type: number
- *                   interests:
- *                     type: array
- *                     items:
- *                       type: string
- *                   goals:
- *                     type: string
- *                   skillLevel:
- *                     type: string
- *                   createdAt:
- *                     type: string
- *                   updatedAt:
- *                     type: string
- *       500:
- *         description: Server error – Failed to fetch users
+ *                 $ref: '#/components/schemas/User'
  */
 router.get('/', async (req, res) => {
   try {
     const users = await User.find();
     res.json(users);
   } catch (error) {
-    console.error('❌ Error fetching users:', error.message);
+    console.error("❌ Error fetching users:", error);
     res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   put:
+ *     summary: Update a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: User ID to update
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       200:
+ *         description: User updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found
+ */
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ message: 'User updated successfully', updatedUser });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   delete:
+ *     summary: Delete a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: User ID to delete
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       404:
+ *         description: User not found
+ */
+router.delete('/:id', async (req, res) => {
+  try {
+    const deleted = await User.findByIdAndDelete(req.params.id);
+    if (!deleted) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
