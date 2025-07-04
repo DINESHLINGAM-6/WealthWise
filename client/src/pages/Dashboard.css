@@ -1,0 +1,12 @@
+.dashboard h1 {
+  font-size: 2rem;
+  color: #5BC0BE;
+}
+
+.card, .tip-card {
+  transition: transform 0.2s ease;
+}
+
+.card:hover, .tip-card:hover {
+  transform: scale(1.02);
+}

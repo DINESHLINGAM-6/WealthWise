@@ -1,0 +1,20 @@
+.form-container {
+  background-color: #1C2541;
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  margin: 40px auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  color: white;
+}
+
+form input, form select, form button {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.subtitle {
+  color: #5BC0BE;
+  margin-bottom: 10px;
+}
