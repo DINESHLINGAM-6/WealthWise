@@ -1,17 +1,20 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import './styles/global.css';
-import { ClerkProvider } from '@clerk/clerk-react';
-import { UserProvider } from './context/UserContext';
-import { BrowserRouter } from 'react-router-dom';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
+import { ClerkProvider } from "@clerk/clerk-react";
+import App from "./App";
+import { UserProvider } from "./context/UserContext";
 
-const clerkPubKey = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
+const PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+if (!PUBLISHABLE_KEY) {
+  throw new Error("❌ Missing Clerk Publishable Key! Add it to your .env file.");
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={clerkPubKey}>
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <UserProvider>
         <BrowserRouter>
           <App />

@@ -1,52 +1,51 @@
-import React, { useState } from 'react';
-import { useUser } from '../context/UserContext';
-import './Dashboard.css';
+import React from "react";
+import { motion } from "framer-motion";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/clerk-react";
+import HeroCanvas from "../three/HeroCanvas";
 
-const Dashboard = () => {
-  const { user } = useUser();
-  const [tip, setTip] = useState('');
-
-  const handleGenerateTip = () => {
-    // Future: fetch from OpenAI or custom API
-    const mockTips = [
-      "Start investing ₹500 monthly in index funds.",
-      "Track expenses using a budgeting app.",
-      "Automate savings to a high-interest account.",
-      "Learn a high-demand skill to boost your income.",
-    ];
-    const randomTip = mockTips[Math.floor(Math.random() * mockTips.length)];
-    setTip(randomTip);
-  };
-
-  if (!user) {
-    return (
-      <div className="dashboard">
-        <h2>🚫 No user found</h2>
-        <p>Please complete the onboarding form first.</p>
-      </div>
-    );
-  }
-
+export default function Dashboard() {
   return (
-    <div className="dashboard">
-      <h1>Welcome, {user.name} 👋</h1>
-      <p className="goal">🎯 Goal: {user.goals}</p>
+    <div className="page">
+      <section className="hero">
+        <div className="hero-left">
+          <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+            Your Daily AI Money Mentor
+          </motion.h1>
+          <motion.p initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: .1 }}>
+            Track, learn, and act—get personalized ideas to grow your wealth faster.
+          </motion.p>
 
-      <div className="card">
-        <h3>👤 Profile Overview</h3>
-        <p><strong>Age:</strong> {user.age}</p>
-        <p><strong>Skill Level:</strong> {user.skillLevel}</p>
-        <p><strong>Interests:</strong> {user.interests.join(', ')}</p>
-      </div>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="btn-primary">Get Started</button>
+            </SignInButton>
+          </SignedOut>
 
-      <div className="tip-card">
-        <h3>💡 Daily Wealth Tip</h3>
-        <p>Click below to get your personalized money insight!</p>
-        <button onClick={handleGenerateTip}>Generate Tip</button>
-        {tip && <div className="tip-output">👉 {tip}</div>}
-      </div>
+          <SignedIn>
+            <a href="/dashboard" className="btn-primary">Go to My Dashboard</a>
+          </SignedIn>
+        </div>
+
+        <div className="hero-right">
+          <HeroCanvas />
+        </div>
+      </section>
+
+      {/* some public “teaser” widgets */}
+      <section className="grid">
+        <motion.div className="card" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }}>
+          <h3>Daily Tip</h3>
+          <p>Come back daily to unlock 1 actionable idea powered by AI.</p>
+        </motion.div>
+        <motion.div className="card" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: .1 }}>
+          <h3>Goal Tracker</h3>
+          <p>Visualize your net worth and progress toward financial freedom.</p>
+        </motion.div>
+        <motion.div className="card" initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: .2 }}>
+          <h3>Playbooks</h3>
+          <p>Step-by-step playbooks for side-income, investing, and saving.</p>
+        </motion.div>
+      </section>
     </div>
   );
-};
-
-export default Dashboard;
+}

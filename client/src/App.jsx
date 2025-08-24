@@ -1,34 +1,57 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import { SignIn, SignUp, SignedIn, SignedOut, RedirectToSignIn } from '@clerk/clerk-react';
-import OnboardingForm from './components/OnboardingForm';
-import Dashboard from './pages/Dashboard';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
 
-function App() {
+import Navbar from "./components/Navbar";
+import Dashboard from "./pages/Dashboard";
+import OnboardingForm from "./components/OnboardingForm";
+import Me from "./pages/Me";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+export default function App() {
   return (
     <>
+      {/* Navbar will always be visible */}
+      <Navbar />
+
       <Routes>
-        <Route path="/sign-in" element={<SignIn routing="path" path="/sign-in" />} />
-        <Route path="/sign-up" element={<SignUp routing="path" path="/sign-up" />} />
-        
+        {/* Public landing page */}
+        <Route path="/" element={<Dashboard />} />
+
+        {/* Onboarding (requires sign-in) */}
         <Route
-          path="/"
+          path="/onboarding"
           element={
-            <>
-              <SignedIn>
-                <Dashboard />
-              </SignedIn>
-              <SignedOut>
-                <RedirectToSignIn />
-              </SignedOut>
-            </>
+            <SignedIn>
+              <OnboardingForm />
+            </SignedIn>
           }
         />
 
-        <Route path="/onboarding" element={<OnboardingForm />} />
+        {/* Personalized dashboard (requires sign-in + profile) */}
+        <Route
+          path="/dashboard"
+          element={
+            <SignedIn>
+              <ProtectedRoute needProfile>
+                <Me />
+              </ProtectedRoute>
+            </SignedIn>
+          }
+        />
+
+        {/* Signed-out users → redirect to Clerk sign-in */}
+        <Route
+          path="/sign-in/*"
+          element={
+            <SignedOut>
+              <RedirectToSignIn />
+            </SignedOut>
+          }
+        />
+
+        {/* Catch-all → redirect to home */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   );
 }
-
-export default App;
