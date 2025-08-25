@@ -1,28 +1,29 @@
-import React, { Suspense } from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Float, MeshDistortMaterial } from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+import { useRef } from "react";
 
-// Simple animated “coin/brain-ish” sphere
-function Coin() {
+function FloatingCube() {
+  const cubeRef = useRef();
+
+  useFrame(() => {
+    cubeRef.current.rotation.y += 0.01; // smooth rotation
+  });
+
   return (
-    <Float speed={2} rotationIntensity={1} floatIntensity={1.5}>
-      <mesh>
-        <icosahedronGeometry args={[1.2, 1]} />
-        <MeshDistortMaterial distort={0.3} speed={2} roughness={0.2} metalness={0.8} />
-      </mesh>
-    </Float>
+    <mesh ref={cubeRef}>
+      <boxGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial color="hotpink" />
+    </mesh>
   );
 }
 
 export default function HeroCanvas() {
   return (
-    <Canvas camera={{ position: [0, 0, 4] }}>
-      <ambientLight intensity={0.8} />
-      <directionalLight position={[5, 5, 5]} intensity={0.7} />
-      <Suspense fallback={null}>
-        <Coin />
-      </Suspense>
+    <Canvas camera={{ position: [3, 3, 3] }}>
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[5, 5, 5]} />
       <OrbitControls enableZoom={false} />
+      <FloatingCube />
     </Canvas>
   );
 }
